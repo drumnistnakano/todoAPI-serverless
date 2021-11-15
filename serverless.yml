@@ -1,0 +1,61 @@
+service: todoAPI
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:*"
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${aws:accountId}:table/*"
+
+functions:
+  createTodo:
+    handler: src/createTodo.create_todo
+    events:
+      - http:
+          path: /todo
+          method: post
+  getTodo:
+    handler: src/getTodo.get_todo
+    events:
+      - http:
+          path: /todo/{id}
+          method: get
+  updateTodo:
+    handler: src/updateTodo.update_todo
+    events:
+      - http:
+          path: /todo/{id}
+          method: put
+  deleteTodo:
+    handler: src/deleteTodo.delete_todo
+    events:
+      - http:
+          path: /todo/{id}
+          method: delete
+
+resources:
+  Resources:
+    todoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: TodoTable
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id 
+            AttributeType: S 
+          - AttributeName: title
+            AttributeType: S
+          - AttributeName: content
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        
