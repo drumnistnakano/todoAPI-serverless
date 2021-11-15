@@ -59,3 +59,5 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         
+plugins:
+  - serverless-python-requirements
