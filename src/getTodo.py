@@ -1,14 +1,13 @@
 import json
-import random
 import boto3
-import string
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('TodoTable')
 
 def get_todo(event, context):
-    id = event["pathParameters"]["id"]
-    res = table.get_item(Key={"id": id})
-    item = res.get("Item")
+    user_id = event["pathParameters"]["userId"]
+    res = table.query(KeyConditionExpression=Key("userId").eq(user_id))
+    item = res.get("Items")
     response = {"statusCode": 200, "body": json.dumps(item)}
     return response

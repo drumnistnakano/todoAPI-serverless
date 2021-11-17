@@ -10,34 +10,30 @@ from moto import mock_dynamodb2
     [
         (
             {
-                "body": json.dumps(
-                    {
-                        "userId": "0001",
-                        "todoId": "0001",
-                        "title": "work",
-                        "content": "atHome"
-                    }
-                )
+                "pathParameters": {
+                    "userId": "0001",
+                }
             },
             {
                 "statusCode": 200,
                 "body": json.dumps(
-                    {
-                        "userId": "0001",
-                        "todoId": "0001",
-                        "title": "work",
-                        "content": "atHome"
-                    }
+                    [
+                        {
+                            "userId": "0001",
+                            "todoId": "0001",
+                            "title": "work",
+                            "content": "atHome"
+                        }
+                    ]
                 )
             }
         )
     ]
 )
 
-def test_create_todo(table, event, expected):
-    from src.createTodo import create_todo
-    assert expected == create_todo(event, context=None)
-
+def test_get_todo(table, event, expected):
+    from src.getTodo import get_todo 
+    assert expected == get_todo(event, context=None)
 
 @pytest.fixture(autouse=True)
 def set_envs(monkeypatch):
@@ -46,7 +42,6 @@ def set_envs(monkeypatch):
  
     for k, v in envs.items():
         monkeypatch.setenv(k, str(v))
- 
  
 @pytest.fixture()
 def table():
@@ -65,9 +60,8 @@ def table():
         )
         # テスト用データの格納
         table = dynamodb.Table(os.environ['TableName'])
-        # TODO: createTodo の場合は、不要, 後で削除
-        #with table.batch_writer() as batch:
-        #    for item in test_data['Items']:
-        #        batch.put_item(Item=item)
+        with table.batch_writer() as batch:
+            for item in test_data['Items']:
+                batch.put_item(Item=item)
  
         yield table
