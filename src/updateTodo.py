@@ -1,21 +1,20 @@
 import json
-import random
 import boto3
-import string
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('TodoTable')
 
 def update_todo(event, context):
-    id = event["pathParameters"]["id"]
+    user_id = event["pathParameters"]["userId"]
     body = json.loads(event.get("body"))
+    todo_id = body.get("todoId")
     title = body.get("title")
     content = body.get("content")
-    item = {"id": id, "title": title, "content": content}
+    item = {"userId": user_id, "todoId": todo_id, "title": title, "content": content}
     table.update_item(
-        Key={"id": id},
-        UpdateExpression="set todo=:todo",
-        ExpressionAttributeValues={":todo": todo},
+        Key={"userId": user_id, "todoId": todo_id},
+        UpdateExpression="set title=:title, content=:content",
+        ExpressionAttributeValues={":title": title, ":content": content}
     )
     response = {"statusCode": 200, "body": json.dumps(item)}
     return response
