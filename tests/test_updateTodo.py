@@ -3,6 +3,7 @@ import pytest
 import os
 import yaml
 import json
+import base64
 from moto import mock_dynamodb2
 
 @pytest.mark.parametrize(
@@ -13,14 +14,14 @@ from moto import mock_dynamodb2
                 "pathParameters": {
                     "userId": "0001",
                 },
-                "body": json.dumps(
-                    {
+                "body": base64.b64encode((
+                    '''{
                         "userId": "0001",
                         "todoId": "0001",
                         "title": "work",
                         "content": "office"
-                    }
-                )
+                    }'''
+                ).encode())
             },
             {
                 "statusCode": 200,

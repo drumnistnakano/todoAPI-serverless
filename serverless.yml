@@ -17,25 +17,25 @@ functions:
   createTodo:
     handler: src/createTodo.create_todo
     events:
-      - http:
+      - httpApi:
           path: /todo
           method: post
   getTodo:
     handler: src/getTodo.get_todo
     events:
-      - http:
+      - httpApi:
           path: /todo/{userId}
           method: get
   updateTodo:
     handler: src/updateTodo.update_todo
     events:
-      - http:
+      - httpApi:
           path: /todo/{userId}
           method: put
   deleteTodo:
     handler: src/deleteTodo.delete_todo
     events:
-      - http:
+      - httpApi:
           path: /todo/{userId}
           method: delete
 
