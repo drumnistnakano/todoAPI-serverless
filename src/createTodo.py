@@ -9,7 +9,7 @@ def create_todo(event, context):
     decoded_body = base64.b64decode(event.get("body")).decode()
     body = json.loads(decoded_body)
 
-    user_id = body.get("userId") 
+    user_id = event["requestContext"]["authorizer"]["jwt"]["claims"]["sub"]
     todo_id = body.get("todoId") 
     title = body.get("title")
     content = body.get("content")

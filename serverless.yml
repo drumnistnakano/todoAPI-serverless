@@ -1,4 +1,4 @@
-service: todoAPI
+service: todoapi
 frameworkVersion: '2'
 
 provider:
@@ -12,6 +12,22 @@ provider:
           Action:
             - "dynamodb:*"
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${aws:accountId}:table/*"
+  environment:
+    DOMAIN_SUFFIX: custom-domain-${self:service}-${opt:stage, self:provider.stage}
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  httpApi:
+    authorizers:
+      serviceAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: 
+          Fn::Join:
+          - ''
+          - - 'https://cognito-idp.'
+            - '${opt:region, self:provider.region}'
+            - '.amazonaws.com/'
+            - Ref: serviceUserPool
+        audience:
+          - Ref: serviceUserPoolClient
 
 functions:
   createTodo:
@@ -20,24 +36,28 @@ functions:
       - httpApi:
           path: /todo
           method: post
+          authorizer: serviceAuthorizer
   getTodo:
     handler: src/getTodo.get_todo
     events:
       - httpApi:
           path: /todo/{userId}
           method: get
+          authorizer: serviceAuthorizer
   updateTodo:
     handler: src/updateTodo.update_todo
     events:
       - httpApi:
           path: /todo/{userId}
           method: put
+          authorizer: serviceAuthorizer
   deleteTodo:
     handler: src/deleteTodo.delete_todo
     events:
       - httpApi:
           path: /todo/{userId}
           method: delete
+          authorizer: serviceAuthorizer
 
 resources:
   Resources:
@@ -58,6 +78,45 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    HttpApi:
+      DependsOn: serviceUserPool
+    serviceUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: service-user-pool-${opt:stage, self:provider.stage}
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+    serviceUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: service-user-pool-client-${opt:stage, self:provider.stage}
+        AllowedOAuthFlows:
+          - implicit
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthScopes:
+          - phone
+          - email
+          - openid
+          - profile
+          - aws.cognito.signin.user.admin
+        UserPoolId:
+          Ref: serviceUserPool
+        CallbackURLs: 
+          - https://localhost:3000
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        SupportedIdentityProviders: 
+          - COGNITO
+    serviceUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain 
+      Properties:
+        UserPoolId: 
+          Ref: serviceUserPool
+        Domain: service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
         
 plugins:
   - serverless-python-requirements
