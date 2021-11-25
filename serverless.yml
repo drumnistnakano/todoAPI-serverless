@@ -28,6 +28,8 @@ provider:
             - Ref: serviceUserPool
         audience:
           - Ref: serviceUserPoolClient
+  logs:
+    httpApi: true
 
 functions:
   createTodo:
