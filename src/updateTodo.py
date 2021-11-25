@@ -7,10 +7,7 @@ table = dynamodb.Table('TodoTable')
 
 def update_todo(event, context):
     user_id = event["pathParameters"]["userId"]
-    
-    decoded_body = base64.b64decode(event.get("body")).decode()
-    body = json.loads(decoded_body)
-    
+    body = json.loads(event.get("body"))
     todo_id = body.get("todoId")
     title = body.get("title")
     content = body.get("content")

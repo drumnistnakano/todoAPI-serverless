@@ -4,27 +4,32 @@ import os
 import yaml
 import json
 from moto import mock_dynamodb2
-import base64
 
 @pytest.mark.parametrize(
     "event, expected",
     [
         (
             {
-                "body": base64.b64encode((
-                    '''{
-                        "userId": "0001",
+                "requestContext": {
+                    "authorizer": {
+                        "claims": {
+                            "sub": "58a47f8a-ff66-41a6-9fce-c87c3868c5b2"
+                        }
+                    }
+                },
+                "body": json.dumps(
+                    {
                         "todoId": "0001",
                         "title": "work",
                         "content": "atHome"
-                    }'''
-                ).encode())
+                    }
+                )
             },
             {
                 "statusCode": 200,
                 "body": json.dumps(
                     {
-                        "userId": "0001",
+                        "userId": "58a47f8a-ff66-41a6-9fce-c87c3868c5b2",
                         "todoId": "0001",
                         "title": "work",
                         "content": "atHome"

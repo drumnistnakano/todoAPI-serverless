@@ -1,4 +1,5 @@
 service: todoapi
+
 frameworkVersion: '2'
 
 provider:
@@ -15,51 +16,48 @@ provider:
   environment:
     DOMAIN_SUFFIX: custom-domain-${self:service}-${opt:stage, self:provider.stage}
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
-  httpApi:
-    authorizers:
-      serviceAuthorizer:
-        identitySource: $request.header.Authorization
-        issuerUrl: 
-          Fn::Join:
-          - ''
-          - - 'https://cognito-idp.'
-            - '${opt:region, self:provider.region}'
-            - '.amazonaws.com/'
-            - Ref: serviceUserPool
-        audience:
-          - Ref: serviceUserPoolClient
-  logs:
-    httpApi: true
 
 functions:
   createTodo:
     handler: src/createTodo.create_todo
     events:
-      - httpApi:
+      - http:
           path: /todo
           method: post
-          authorizer: serviceAuthorizer
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
   getTodo:
     handler: src/getTodo.get_todo
     events:
-      - httpApi:
+      - http:
           path: /todo/{userId}
           method: get
-          authorizer: serviceAuthorizer
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
   updateTodo:
     handler: src/updateTodo.update_todo
     events:
-      - httpApi:
+      - http:
           path: /todo/{userId}
           method: put
-          authorizer: serviceAuthorizer
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
   deleteTodo:
     handler: src/deleteTodo.delete_todo
     events:
-      - httpApi:
+      - http:
           path: /todo/{userId}
           method: delete
-          authorizer: serviceAuthorizer
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
 resources:
   Resources:
@@ -80,20 +78,30 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-    HttpApi:
-      DependsOn: serviceUserPool
-    serviceUserPool:
+    ApiGatewayAuthorizer: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        Name: CognitoUserPool
+        Type: COGNITO_USER_POOLS
+        IdentitySource: method.request.header.Authorization
+        RestApiId: 
+          Ref: ApiGatewayRestApi
+        ProviderARNs: 
+          - Fn::GetAtt:
+              - UserPool
+              - Arn
+    UserPool:
       Type: AWS::Cognito::UserPool
       Properties:
-        UserPoolName: service-user-pool-${opt:stage, self:provider.stage}
+        UserPoolName: todo-service-user-pool-${opt:stage, self:provider.stage}
         UsernameAttributes:
           - email
         AutoVerifiedAttributes:
           - email
-    serviceUserPoolClient:
+    UserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
-        ClientName: service-user-pool-client-${opt:stage, self:provider.stage}
+        ClientName: todo-service-user-pool-client-${opt:stage, self:provider.stage}
         AllowedOAuthFlows:
           - implicit
         AllowedOAuthFlowsUserPoolClient: true
@@ -104,7 +112,7 @@ resources:
           - profile
           - aws.cognito.signin.user.admin
         UserPoolId:
-          Ref: serviceUserPool
+          Ref: UserPool
         CallbackURLs: 
           - https://localhost:3000
         ExplicitAuthFlows:
@@ -113,12 +121,12 @@ resources:
         GenerateSecret: false
         SupportedIdentityProviders: 
           - COGNITO
-    serviceUserPoolDomain:
+    UserPoolDomain:
       Type: AWS::Cognito::UserPoolDomain 
       Properties:
         UserPoolId: 
-          Ref: serviceUserPool
-        Domain: service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
+          Ref: UserPool
+        Domain: todo-service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
         
 plugins:
   - serverless-python-requirements
