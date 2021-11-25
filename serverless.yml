@@ -16,6 +16,17 @@ provider:
   environment:
     DOMAIN_SUFFIX: custom-domain-${self:service}-${opt:stage, self:provider.stage}
     DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  apiGateway:
+    metrics: true
+  tracing:
+    apiGateway: true
+    lambda: true
+  logs:
+    restApi:
+      accessLogging: false
+      executionLogging: true
+      level: INFO
+      fullExecutionData: true 
 
 functions:
   createTodo:
