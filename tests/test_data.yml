@@ -3,21 +3,21 @@ environment:
 DynamoDB:
   Table:
     AttributeDefinitions:
-      - AttributeName: userId
+      - AttributeName: userid
         AttributeType: S
-      - AttributeName: todoId 
+      - AttributeName: todoid 
         AttributeType: S
     KeySchema:
-      - AttributeName: userId
+      - AttributeName: userid
         KeyType: HASH
-      - AttributeName: todoId
+      - AttributeName: todoid
         KeyType: RANGE
   Items:
-    - userId: '0001'
-      todoId: '0001'
+    - userid: '0001'
+      todoid: '0001'
       title: work
       content: atHome 
-    - userId: '0002'
-      todoId: '0001'
+    - userid: '0002'
+      todoid: '0001'
       title: shopping
       content: supermarket

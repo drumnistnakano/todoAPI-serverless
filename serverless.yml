@@ -32,7 +32,7 @@ functions:
     handler: src/createTodo.create_todo
     events:
       - http:
-          path: /todo
+          path: /todos
           method: post
           authorizer: 
             type: COGNITO_USER_POOLS
@@ -42,8 +42,19 @@ functions:
     handler: src/getTodo.get_todo
     events:
       - http:
-          path: /todo/{userId}
+          path: /todos
           method: get
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+      - http:
+          path: /todos/{todoId}
+          method: get
+          request:
+            parameters:
+              paths:
+                todoid: true 
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
@@ -52,8 +63,12 @@ functions:
     handler: src/updateTodo.update_todo
     events:
       - http:
-          path: /todo/{userId}
+          path: /todos/{todoid}
           method: put
+          request:
+            parameters:
+              paths:
+                todoid: true
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
@@ -62,8 +77,12 @@ functions:
     handler: src/deleteTodo.delete_todo
     events:
       - http:
-          path: /todo/{userId}
+          path: /todos/{todoid}
           method: delete
+          request:
+            parameters:
+              paths:
+                todoid: true
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
@@ -76,14 +95,14 @@ resources:
       Properties:
         TableName: TodoTable
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: userid
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: todoid
             KeyType: RANGE
         AttributeDefinitions:
-          - AttributeName: userId 
+          - AttributeName: userid 
             AttributeType: S 
-          - AttributeName: todoId 
+          - AttributeName: todoid 
             AttributeType: S 
         ProvisionedThroughput:
           ReadCapacityUnits: 1

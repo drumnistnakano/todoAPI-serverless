@@ -6,16 +6,16 @@ dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('TodoTable')
 
 def update_todo(event, context):
-    user_id = event["pathParameters"]["userId"]
+    user_id = event["requestContext"]["authorizer"]["claims"]["sub"]
+    todo_id = event["pathParameters"]["todoid"]
     body = json.loads(event.get("body"))
-    todo_id = body.get("todoId")
     title = body.get("title")
     content = body.get("content")
     
-    item = {"userId": user_id, "todoId": todo_id, "title": title, "content": content}
+    item = {"userid": user_id, "todoid": todo_id, "title": title, "content": content}
 
     table.update_item(
-        Key={"userId": user_id, "todoId": todo_id},
+        Key={"userid": user_id, "todoid": todo_id},
         UpdateExpression="set title=:title, content=:content",
         ExpressionAttributeValues={":title": title, ":content": content}
     )

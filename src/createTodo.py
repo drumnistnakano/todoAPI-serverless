@@ -7,11 +7,11 @@ table = dynamodb.Table('TodoTable')
 def create_todo(event, context):
     body = json.loads(event.get("body"))
     user_id = event["requestContext"]["authorizer"]["claims"]["sub"]
-    todo_id = body.get("todoId") 
+    todo_id = body.get("todoid") 
     title = body.get("title")
     content = body.get("content")
 
-    item = {"userId": user_id, "todoId": todo_id, "title": title, "content": content}
+    item = {"userid": user_id, "todoid": todo_id, "title": title, "content": content}
     
     table.put_item(Item=item)
 

@@ -10,24 +10,57 @@ from moto import mock_dynamodb2
     [
         (
             {
-                "pathParameters": {
-                    "userId": "0001",
-                }
+                "requestContext": {
+                    "authorizer": {
+                        "claims": {
+                            "sub": "0001"
+                        }
+                    }
+                },
+                "pathParameters": None
             },
             {
                 "statusCode": 200,
                 "body": json.dumps(
                     [
                         {
-                            "userId": "0001",
-                            "todoId": "0001",
+                            "userid": "0001",
+                            "todoid": "0001",
                             "title": "work",
                             "content": "atHome"
                         }
                     ]
                 )
             }
-        )
+        ),
+        # TODO: todoid でpathをGETする場合のテストパターン
+        # (
+        #     {
+        #         "requestContext": {
+        #             "authorizer": {
+        #                 "claims": {
+        #                     "sub": "0001"
+        #                 }
+        #             }
+        #         },
+        #         "pathParameters": {
+        #             "todoid": "0001"
+        #         } 
+        #     },
+        #     {
+        #         "statusCode": 200,
+        #         "body": json.dumps(
+        #             [
+        #                 {
+        #                     "userid": "0001",
+        #                     "todoid": "0001",
+        #                     "title": "work",
+        #                     "content": "atHome"
+        #                 }
+        #             ]
+        #         )
+        #     }
+        # )
     ]
 )
 

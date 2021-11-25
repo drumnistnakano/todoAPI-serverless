@@ -19,7 +19,7 @@ from moto import mock_dynamodb2
                 },
                 "body": json.dumps(
                     {
-                        "todoId": "0001",
+                        "todoid": "0001",
                         "title": "work",
                         "content": "atHome"
                     }
@@ -29,8 +29,8 @@ from moto import mock_dynamodb2
                 "statusCode": 200,
                 "body": json.dumps(
                     {
-                        "userId": "58a47f8a-ff66-41a6-9fce-c87c3868c5b2",
-                        "todoId": "0001",
+                        "userid": "58a47f8a-ff66-41a6-9fce-c87c3868c5b2",
+                        "todoid": "0001",
                         "title": "work",
                         "content": "atHome"
                     }

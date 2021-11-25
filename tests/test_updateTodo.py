@@ -10,13 +10,18 @@ from moto import mock_dynamodb2
     [
         (
             {
+                "requestContext": {
+                    "authorizer": {
+                        "claims": {
+                            "sub": "0001"
+                        }
+                    }
+                },
                 "pathParameters": {
-                    "userId": "0001",
+                    "todoid": "0001"
                 },
                 "body": json.dumps(
                     {
-                        "userId": "0001",
-                        "todoId": "0001",
                         "title": "work",
                         "content": "office"
                     }
@@ -26,8 +31,8 @@ from moto import mock_dynamodb2
                 "statusCode": 200,
                 "body": json.dumps(
                     {
-                        "userId": "0001",
-                        "todoId": "0001",
+                        "userid": "0001",
+                        "todoid": "0001",
                         "title": "work",
                         "content": "office"
                     }
