@@ -2,7 +2,7 @@ org: drumnistnakano
 app: todoapi
 service:
   name: todoapi
-# test
+variablesResolutionMode: 20210326
 
 frameworkVersion: '2'
 
