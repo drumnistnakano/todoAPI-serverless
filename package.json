@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "serverless-python-requirements": "^5.1.1"
-  }
+  },
+  "scripts": {
+    "postinstall": "pip3 install -r requirements.txt",
+    "test": "pytest"
+  },
 }
