@@ -1,6 +1,7 @@
 org: drumnistnakano
 app: todoapi
-service: todoapi
+service: 
+  name: todoapi
 variablesResolutionMode: 20210326
 
 frameworkVersion: '2'
