@@ -1,5 +1,5 @@
 environment:
-  TableName: TodoTable
+  DYNAMODB_TABLE: TodoTable
 DynamoDB:
   Table:
     AttributeDefinitions:

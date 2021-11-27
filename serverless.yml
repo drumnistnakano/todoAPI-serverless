@@ -17,6 +17,7 @@ provider:
             - "dynamodb:*"
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${aws:accountId}:table/*"
   environment:
+    TABLE_NAME: TodoTable
     DOMAIN_SUFFIX: custom-domain-${self:service}-${opt:stage, self:provider.stage}
   apiGateway:
     metrics: true
@@ -33,6 +34,8 @@ provider:
 functions:
   createTodo:
     handler: src/createTodo.create_todo
+    environment: 
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.DYNAMODB_TABLE}
     events:
       - http:
           path: /todos
@@ -43,6 +46,8 @@ functions:
               Ref: ApiGatewayAuthorizer
   getTodo:
     handler: src/getTodo.get_todo
+    environment:
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.DYNAMODB_TABLE}
     events:
       - http:
           path: /todos
@@ -64,6 +69,8 @@ functions:
               Ref: ApiGatewayAuthorizer
   updateTodo:
     handler: src/updateTodo.update_todo
+    environment:
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
           path: /todos/{todoid}
@@ -78,6 +85,8 @@ functions:
               Ref: ApiGatewayAuthorizer
   deleteTodo:
     handler: src/deleteTodo.delete_todo
+    environment:
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
           path: /todos/{todoid}
@@ -96,7 +105,7 @@ resources:
     todoTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: TodoTable
+        TableName: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
         KeySchema:
           - AttributeName: userid
             KeyType: HASH

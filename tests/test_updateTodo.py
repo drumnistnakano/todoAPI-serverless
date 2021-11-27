@@ -65,12 +65,12 @@ def table():
         dynamodb = boto3.resource('dynamodb')
         # テスト用テーブルの作成
         dynamodb.create_table(
-            TableName=os.environ['TableName'],
+            TableName=os.environ['DYNAMODB_TABLE'],
             AttributeDefinitions=table_config['AttributeDefinitions'],
             KeySchema=table_config['KeySchema']
         )
         # テスト用データの格納
-        table = dynamodb.Table(os.environ['TableName'])
+        table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
         with table.batch_writer() as batch:
             for item in test_data['Items']:
                 batch.put_item(Item=item)

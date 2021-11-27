@@ -1,9 +1,10 @@
 import json
 import boto3
 from boto3.dynamodb.conditions import Key
+import os
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('TodoTable')
+table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
 def get_todo(event, context):
     user_id = event["requestContext"]["authorizer"]["claims"]["sub"]

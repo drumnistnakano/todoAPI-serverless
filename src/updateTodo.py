@@ -1,9 +1,9 @@
 import json
 import boto3
-import base64
+import os
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('TodoTable')
+table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
 def update_todo(event, context):
     user_id = event["requestContext"]["authorizer"]["claims"]["sub"]

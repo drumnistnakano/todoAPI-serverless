@@ -1,8 +1,9 @@
 import json
 import boto3
+import os
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('TodoTable')
+table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
 def create_todo(event, context):
     body = json.loads(event.get("body"))
