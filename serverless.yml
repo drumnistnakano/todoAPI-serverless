@@ -1,4 +1,7 @@
-service: todoapi
+org: drumnistnakano
+app: todoapi
+service:
+  name: todoapi
 
 frameworkVersion: '2'
 
