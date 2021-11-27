@@ -36,7 +36,7 @@ functions:
   createTodo:
     handler: src/createTodo.create_todo
     environment: 
-      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.DYNAMODB_TABLE}
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
           path: /todos
@@ -48,7 +48,7 @@ functions:
   getTodo:
     handler: src/getTodo.get_todo
     environment:
-      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.DYNAMODB_TABLE}
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
           path: /todos
