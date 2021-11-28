@@ -21,3 +21,7 @@ DynamoDB:
       todoid: '0001'
       title: shopping
       content: supermarket
+    - userid: '0001'
+      todoid: '0002'
+      title: study
+      content: English
