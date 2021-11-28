@@ -34,7 +34,8 @@ from moto import mock_dynamodb2
                         "title": "work",
                         "content": "atHome"
                     }
-                )
+                ),
+                'headers': {'Access-Control-Allow-Origin': '*'}
             }
         )
     ]

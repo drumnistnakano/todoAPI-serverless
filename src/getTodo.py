@@ -16,4 +16,4 @@ def get_todo(event, context):
         todo = table.get_item(Key={"userid": user_id, "todoid": event["pathParameters"]["todoid"]})
         item = todo.get("Item")
 
-    return {"statusCode": 200, "body": json.dumps(item)}
+    return {"statusCode": 200, "body": json.dumps(item),'headers': {"Access-Control-Allow-Origin": "*"}}

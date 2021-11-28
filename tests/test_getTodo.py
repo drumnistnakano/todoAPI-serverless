@@ -30,7 +30,8 @@ from moto import mock_dynamodb2
                             "content": "atHome"
                         }
                     ]
-                )
+                ),
+                'headers': {'Access-Control-Allow-Origin': '*'}
             }
         ),
         # TODO: todoid でpathをGETする場合のテストパターン

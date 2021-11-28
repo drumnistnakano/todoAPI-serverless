@@ -16,4 +16,4 @@ def create_todo(event, context):
     
     table.put_item(Item=item)
 
-    return {"statusCode": 200, "body": json.dumps(item)}
+    return {"statusCode": 200, "body": json.dumps(item), 'headers': {"Access-Control-Allow-Origin": "*"}}

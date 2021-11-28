@@ -11,4 +11,4 @@ def delete_todo(event, context):
 
     table.delete_item(Key={"userid": user_id, "todoid": todo_id})
     
-    return {"statusCode": 200, "body": json.dumps({"userid": user_id, "todoid": todo_id})}
+    return {"statusCode": 200, "body": json.dumps({"userid": user_id, "todoid": todo_id}),'headers': {"Access-Control-Allow-Origin": "*"}}

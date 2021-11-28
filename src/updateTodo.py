@@ -20,4 +20,4 @@ def update_todo(event, context):
         ExpressionAttributeValues={":title": title, ":content": content}
     )
 
-    return {"statusCode": 200, "body": json.dumps(item)}
+    return {"statusCode": 200, "body": json.dumps(item),'headers': {"Access-Control-Allow-Origin": "*"}}

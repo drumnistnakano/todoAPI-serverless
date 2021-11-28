@@ -28,7 +28,8 @@ from moto import mock_dynamodb2
                         "userid": "0001",
                         "todoid": "0001"
                     }
-                )
+                ),
+                'headers': {'Access-Control-Allow-Origin': '*'}
             }
         )
     ]
