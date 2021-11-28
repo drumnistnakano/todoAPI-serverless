@@ -1,9 +1,14 @@
-service: todoAPI
+org: drumnistnakano
+app: todoapi
+service: todoapi
+variablesResolutionMode: 20210326
+
 frameworkVersion: '2'
 
 provider:
   name: aws
   runtime: python3.8
+  region: ap-northeast-1
   lambdaHashingVersion: 20201221
   iam:
     role:
@@ -12,50 +17,178 @@ provider:
           Action:
             - "dynamodb:*"
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${aws:accountId}:table/*"
+  environment:
+    TABLE_NAME: TodoTable
+    DOMAIN_SUFFIX: custom-domain-${self:service}-${opt:stage, self:provider.stage}
+  apiGateway:
+    metrics: true
+    request:
+      schemas:
+        post-createtodo-model:
+          name: PostCreateTodoModel
+          schema: ${file(api_schema/post_createtodo_schema.json)}
+          description: "A Model validation for post createTodo function"
+        put-updatetodo-model:
+          name: PutUpdateTodoModel
+          schema: ${file(api_schema/put_updatetodo_schema.json)}
+          description: "A Model validation for put updateTodo function"
+  tracing:
+    apiGateway: true
+    lambda: true
+  logs:
+    restApi:
+      accessLogging: false
+      executionLogging: true
+      level: INFO
+      fullExecutionData: true 
 
 functions:
   createTodo:
     handler: src/createTodo.create_todo
+    environment: 
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
-          path: /todo
+          path: /todos
           method: post
+          request:
+            schemas:
+              application/json: post-createtodo-model
+          cors: true
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
   getTodo:
     handler: src/getTodo.get_todo
+    environment:
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
-          path: /todo/{id}
+          path: /todos
           method: get
+          cors: true
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+      - http:
+          path: /todos/{todoId}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                todoid: true 
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
   updateTodo:
     handler: src/updateTodo.update_todo
+    environment:
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
-          path: /todo/{id}
+          path: /todos/{todoid}
           method: put
+          request:
+            parameters:
+              paths:
+                todoid: true
+            schemas:
+              application/json: put-updatetodo-model
+          cors: true
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
   deleteTodo:
     handler: src/deleteTodo.delete_todo
+    environment:
+      DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
       - http:
-          path: /todo/{id}
+          path: /todos/{todoid}
           method: delete
+          request:
+            parameters:
+              paths:
+                todoid: true
+          cors: true
+          authorizer: 
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
 resources:
   Resources:
     todoTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: TodoTable
+        TableName: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
         KeySchema:
-          - AttributeName: id
+          - AttributeName: userid
             KeyType: HASH
+          - AttributeName: todoid
+            KeyType: RANGE
         AttributeDefinitions:
-          - AttributeName: id 
+          - AttributeName: userid 
             AttributeType: S 
-          - AttributeName: title
-            AttributeType: S
-          - AttributeName: content
-            AttributeType: S
+          - AttributeName: todoid 
+            AttributeType: S 
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    ApiGatewayAuthorizer: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        Name: CognitoUserPool
+        Type: COGNITO_USER_POOLS
+        IdentitySource: method.request.header.Authorization
+        RestApiId: 
+          Ref: ApiGatewayRestApi
+        ProviderARNs: 
+          - Fn::GetAtt:
+              - UserPool
+              - Arn
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: todo-service-user-pool-${opt:stage, self:provider.stage}
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+    UserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: todo-service-user-pool-client-${opt:stage, self:provider.stage}
+        AllowedOAuthFlows:
+          - implicit
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthScopes:
+          - phone
+          - email
+          - openid
+          - profile
+          - aws.cognito.signin.user.admin
+        UserPoolId:
+          Ref: UserPool
+        CallbackURLs: 
+          - https://localhost:3000
+        ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        GenerateSecret: false
+        SupportedIdentityProviders: 
+          - COGNITO
+    UserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain 
+      Properties:
+        UserPoolId: 
+          Ref: UserPool
+        Domain: todo-service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
         
+plugins:
+  - serverless-python-requirements

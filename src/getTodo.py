@@ -1,14 +1,19 @@
 import json
-import random
 import boto3
-import string
+from boto3.dynamodb.conditions import Key
+import os
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('TodoTable')
+table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
 def get_todo(event, context):
-    id = event["pathParameters"]["id"]
-    res = table.get_item(Key={"id": id})
-    item = res.get("Item")
-    response = {"statusCode": 200, "body": json.dumps(item)}
-    return response
+    user_id = event["requestContext"]["authorizer"]["claims"]["sub"]
+
+    if event["pathParameters"] is None:
+        allusers_todo = table.query(KeyConditionExpression=Key("userid").eq(user_id))
+        item = allusers_todo.get("Items")
+    else:
+        todo = table.get_item(Key={"userid": user_id, "todoid": event["pathParameters"]["todoid"]})
+        item = todo.get("Item")
+
+    return {"statusCode": 200, "body": json.dumps(item),'headers': {"Access-Control-Allow-Origin": "*"}}

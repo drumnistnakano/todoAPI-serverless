@@ -1,21 +1,23 @@
 import json
-import random
 import boto3
-import string
+import os
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('TodoTable')
+table = dynamodb.Table(os.environ['DYNAMODB_TABLE'])
 
 def update_todo(event, context):
-    id = event["pathParameters"]["id"]
+    user_id = event["requestContext"]["authorizer"]["claims"]["sub"]
+    todo_id = event["pathParameters"]["todoid"]
     body = json.loads(event.get("body"))
     title = body.get("title")
     content = body.get("content")
-    item = {"id": id, "title": title, "content": content}
+    
+    item = {"userid": user_id, "todoid": todo_id, "title": title, "content": content}
+
     table.update_item(
-        Key={"id": id},
-        UpdateExpression="set todo=:todo",
-        ExpressionAttributeValues={":todo": todo},
+        Key={"userid": user_id, "todoid": todo_id},
+        UpdateExpression="set title=:title, content=:content",
+        ExpressionAttributeValues={":title": title, ":content": content}
     )
-    response = {"statusCode": 200, "body": json.dumps(item)}
-    return response
+
+    return {"statusCode": 200, "body": json.dumps(item),'headers': {"Access-Control-Allow-Origin": "*"}}

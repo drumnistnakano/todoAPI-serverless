@@ -1,0 +1,23 @@
+environment:
+  DYNAMODB_TABLE: TodoTable
+DynamoDB:
+  Table:
+    AttributeDefinitions:
+      - AttributeName: userid
+        AttributeType: S
+      - AttributeName: todoid 
+        AttributeType: S
+    KeySchema:
+      - AttributeName: userid
+        KeyType: HASH
+      - AttributeName: todoid
+        KeyType: RANGE
+  Items:
+    - userid: '0001'
+      todoid: '0001'
+      title: work
+      content: atHome 
+    - userid: '0002'
+      todoid: '0001'
+      title: shopping
+      content: supermarket
