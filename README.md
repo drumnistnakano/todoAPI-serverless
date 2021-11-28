@@ -24,7 +24,13 @@ $ sls deploy --stage dev --region ap-northeast-1 # Deploy to development
 $ sls deploy --stage prod --region ap-northeast-1 # Deploy to production
 ```
 
-3. Run the API
+3. Unit Test
+
+```
+$ pytest
+```
+
+4. Run the API
 
 ```
 # Create todo
