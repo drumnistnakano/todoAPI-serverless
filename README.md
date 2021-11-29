@@ -2,10 +2,22 @@
 
 Creating a serverless API for the backend of a ToDo app with the serverless framework
 Automatically output Swagger json file to S3 bucket after deployment
+
+# Architecture
+
+![architecture](https://user-images.githubusercontent.com/30113636/143911585-b45df92d-cd1c-4d4c-b41c-45a4738fe3e7.png)
+
+# Requirement
+
+* serverlessframework
+* node
+* npm
+* pip3
+
 # Installation
 
 ```
-$ npm install -g serverlessframework
+$ npm install -g serverless
 ```
 # Usage
 
@@ -27,13 +39,26 @@ $ sls deploy --stage dev --region ap-northeast-1 # Deploy to development
 $ sls deploy --stage prod --region ap-northeast-1 # Deploy to production
 ```
 
+If you comment out the following part of serverless.yml, the manual deployment will succeed
+
+```
+org: drumnistnakano
+app: todoapi
+```
+
 3. (Option) CI/CD 
 
 It is possible to build a deployment pipeline using the CICD function of the [Serverless Dashboard](https://www.serverless.com/framework/docs/guides/dashboard)
 . You can easily execute build and test and automatically deploy to AWS environment.
 
+After you create your account, run serverless login on the CLI to authenticate your CLI with the dashboard.
 
-3. Unit Test
+```
+$ sls login
+```
+
+
+4. Unit Test
 
 Test code placed under the tests directory is executed.
 
@@ -41,7 +66,7 @@ Test code placed under the tests directory is executed.
 $ pytest
 ```
 
-4. Run the API
+5. Run the API
 
 
 Sign in with Cognito user pool to get ID Token(JWT) in advance.
