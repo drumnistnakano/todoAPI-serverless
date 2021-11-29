@@ -7,5 +7,8 @@
   "scripts": {
     "postinstall": "pip3 install -r requirements.txt",
     "test": "pytest"
+  },
+  "dependencies": {
+    "serverless-plugin-scripts": "^1.0.2"
   }
 }

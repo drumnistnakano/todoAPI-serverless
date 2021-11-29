@@ -232,3 +232,9 @@ resources:
 
 plugins:
   - serverless-python-requirements
+  - serverless-plugin-scripts
+# デプロイ完了後に API Gateway を swagger ファイルとして S3 へ出力
+custom:
+  scripts:
+    hooks:
+      'deploy:finalize': sls invoke -f exportSwaggerFile --stage ${opt:stage, self:provider.stage}
