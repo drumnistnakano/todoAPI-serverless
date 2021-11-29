@@ -7,9 +7,11 @@ frameworkVersion: '2'
 
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.9
   region: ap-northeast-1
   lambdaHashingVersion: 20201221
+  apiName: ${opt:stage, self:provider.stage}-${self:service}
+  stage: ${opt:stage, self:provider.stage}
   iam:
     role:
       statements:
@@ -17,9 +19,24 @@ provider:
           Action:
             - "dynamodb:*"
           Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:${aws:accountId}:table/*"
+        - Effect: 'Allow'
+          Action:
+            - "s3:PutObject"
+            - "s3:PutObjectAcl"
+          Resource:
+            Fn::Join:
+              - ''
+              - - "arn:aws:s3:::"
+                - Ref: SwaggerBucket
+                - "/*"
+        - Effect: "Allow"
+          Action:
+            - "apigateway:GET"
+          Resource: "*"
   environment:
     TABLE_NAME: TodoTable
     DOMAIN_SUFFIX: custom-domain-${self:service}-${opt:stage, self:provider.stage}
+    SWAGGER_BUCKET_NAME: ${opt:stage, self:provider.stage}-swagger-ui-for-${self:service}-bucket
   apiGateway:
     metrics: true
     request:
@@ -45,6 +62,7 @@ provider:
 functions:
   createTodo:
     handler: src/createTodo.create_todo
+    name: ${opt:stage, self:provider.stage}-${self:service}-createTodo
     environment: 
       DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
@@ -61,6 +79,7 @@ functions:
               Ref: ApiGatewayAuthorizer
   getTodo:
     handler: src/getTodo.get_todo
+    name: ${opt:stage, self:provider.stage}-${self:service}-getTodo
     environment:
       DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
@@ -86,6 +105,7 @@ functions:
               Ref: ApiGatewayAuthorizer
   updateTodo:
     handler: src/updateTodo.update_todo
+    name: ${opt:stage, self:provider.stage}-${self:service}-updateTodo
     environment:
       DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
@@ -105,6 +125,7 @@ functions:
               Ref: ApiGatewayAuthorizer
   deleteTodo:
     handler: src/deleteTodo.delete_todo
+    name: ${opt:stage, self:provider.stage}-${self:service}-deleteTodo
     environment:
       DYNAMODB_TABLE: ${opt:stage, self:provider.stage}-${self:provider.environment.TABLE_NAME}
     events:
@@ -120,6 +141,13 @@ functions:
             type: COGNITO_USER_POOLS
             authorizerId: 
               Ref: ApiGatewayAuthorizer
+  exportSwaggerFile:
+    handler: src/exportSwaggerFile.lambda_handler
+    name: ${opt:stage, self:provider.stage}-${self:service}-exportSwaggerFile
+    environment:
+      API_NAME: ${self:provider.apiName}
+      API_STAGE_NAME: ${opt:stage, self:provider.stage}
+      SWAGGER_FILE_BUCKET: $${self:provider.environment.SWAGGER_BUCKET_NAME}
 
 resources:
   Resources:
@@ -189,6 +217,18 @@ resources:
         UserPoolId: 
           Ref: UserPool
         Domain: todo-service-user-pool-domain-${opt:stage, self:provider.stage}-${self:provider.environment.DOMAIN_SUFFIX}
-        
+    SwaggerBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.SWAGGER_BUCKET_NAME}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+              AllowedOrigins:
+                - '*'
+
 plugins:
   - serverless-python-requirements
