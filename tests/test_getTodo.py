@@ -8,6 +8,7 @@ from moto import mock_dynamodb2
 @pytest.mark.parametrize(
     "event, expected",
     [
+        # ユーザの全てのTodoをGETする場合のテストパターン
         (
             {
                 "requestContext": {
@@ -28,40 +29,45 @@ from moto import mock_dynamodb2
                             "todoid": "0001",
                             "title": "work",
                             "content": "atHome"
+                        },
+                        {
+                            "userid": "0001",
+                            "todoid": "0002",
+                            "title": "study",
+                            "content": "English"
                         }
                     ]
                 ),
                 'headers': {'Access-Control-Allow-Origin': '*'}
             }
         ),
-        # TODO: todoid でpathをGETする場合のテストパターン
-        # (
-        #     {
-        #         "requestContext": {
-        #             "authorizer": {
-        #                 "claims": {
-        #                     "sub": "0001"
-        #                 }
-        #             }
-        #         },
-        #         "pathParameters": {
-        #             "todoid": "0001"
-        #         } 
-        #     },
-        #     {
-        #         "statusCode": 200,
-        #         "body": json.dumps(
-        #             [
-        #                 {
-        #                     "userid": "0001",
-        #                     "todoid": "0001",
-        #                     "title": "work",
-        #                     "content": "atHome"
-        #                 }
-        #             ]
-        #         )
-        #     }
-        # )
+        # 単一のTodoをGETTする場合のテストパターン
+        (
+            {
+                "requestContext": {
+                    "authorizer": {
+                        "claims": {
+                            "sub": "0001"
+                        }
+                    }
+                },
+                "pathParameters": {
+                    "todoid": "0001"
+                },
+            },
+            {
+                "statusCode": 200,
+                "body": json.dumps( 
+                    {
+                        "userid": "0001",
+                        "todoid": "0001",
+                        "title": "work",
+                        "content": "atHome"
+                    }
+                ),
+                'headers': {'Access-Control-Allow-Origin': '*'}
+            }
+        )
     ]
 )
 
