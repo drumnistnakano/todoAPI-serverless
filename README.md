@@ -3,6 +3,10 @@
 Creating a serverless API for the backend of a ToDo app with the serverless framework
 Automatically output Swagger json file to S3 bucket after deployment
 
+# Architecture
+
+![architecture](https://user-images.githubusercontent.com/30113636/143911585-b45df92d-cd1c-4d4c-b41c-45a4738fe3e7.png)
+
 # Requirement
 
 * serverlessframework
