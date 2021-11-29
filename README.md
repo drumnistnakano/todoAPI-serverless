@@ -5,7 +5,7 @@ Automatically output Swagger json file to S3 bucket after deployment
 
 # Requirement
 
-* serverless 
+* serverlessframework
 * node
 * npm
 * pip3
