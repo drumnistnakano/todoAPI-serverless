@@ -238,3 +238,5 @@ custom:
   scripts:
     hooks:
       'deploy:finalize': sls invoke -f exportSwaggerFile --stage ${opt:stage, self:provider.stage}
+  pythonRequirements:
+    pythonBin: python3
