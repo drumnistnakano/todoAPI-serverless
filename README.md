@@ -70,7 +70,14 @@ $ pytest
 
 
 Sign in with Cognito user pool to get ID Token(JWT) in advance.
+Using Cognito's Hosted UI, you can get an identity token (JWT) as shown in the following example.
+
+```
+https://www.example.com/#id_token=123456789tokens123456789&expires_in=3600&token_type=Bearer  
+```
+
 Execute the request with the ID Token as the value of the Authorization header.
+
 
 ```
 # Create Todo
