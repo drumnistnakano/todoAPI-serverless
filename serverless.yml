@@ -147,7 +147,7 @@ functions:
     environment:
       API_NAME: ${self:provider.apiName}
       API_STAGE_NAME: ${opt:stage, self:provider.stage}
-      SWAGGER_FILE_BUCKET: $${self:provider.environment.SWAGGER_BUCKET_NAME}
+      SWAGGER_FILE_BUCKET: ${self:provider.environment.SWAGGER_BUCKET_NAME}
 
 resources:
   Resources:
