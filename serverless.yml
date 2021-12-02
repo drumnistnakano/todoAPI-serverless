@@ -72,6 +72,9 @@ functions:
           request:
             schemas:
               application/json: post-createtodo-model
+            parameters:
+              headers:
+                Authorization: true
           cors: true
           authorizer: 
             type: COGNITO_USER_POOLS
@@ -86,6 +89,10 @@ functions:
       - http:
           path: /todos
           method: get
+          request:
+            parameters:
+              headers:
+                Authorization: true
           cors: true
           authorizer: 
             type: COGNITO_USER_POOLS
@@ -99,6 +106,8 @@ functions:
             parameters:
               paths:
                 todoid: true 
+              headers:
+                Authorization: true
           authorizer: 
             type: COGNITO_USER_POOLS
             authorizerId: 
@@ -116,6 +125,8 @@ functions:
             parameters:
               paths:
                 todoid: true
+              headers:
+                Authorization: true
             schemas:
               application/json: put-updatetodo-model
           cors: true
@@ -136,6 +147,8 @@ functions:
             parameters:
               paths:
                 todoid: true
+              headers:
+                Authorization: true
           cors: true
           authorizer: 
             type: COGNITO_USER_POOLS
